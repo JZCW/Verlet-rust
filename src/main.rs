@@ -1,3 +1,5 @@
+use crate::slover::Vector2f;
+
 slint::include_modules!();
 
 mod slover;
@@ -8,6 +10,8 @@ fn main() -> Result<(), slint::PlatformError> {
   const WINDOW_W:i32 = 1920; // 窗口宽
   const WINDOW_H:i32 = 1080; // 窗口高
   const FRAME_RATE:u32 = 60; // 最大帧率
+  const SUB_STEP:u32 = 8;    // 子步进
+  const GRAVITY:slover::Vector2f = slover::Vector2f{x:0.,y:0.01}; // 重力
 
   const FRAME_TIME:u32 = 1000/FRAME_RATE;
 
@@ -19,6 +23,9 @@ fn main() -> Result<(), slint::PlatformError> {
 
 
   let mut s = slover::Slover::new();
+  s.sub_step = SUB_STEP;
+  s.step_dt  = (FRAME_TIME/SUB_STEP) as f32;
+  s.gravity  = GRAVITY;
   s.addObject(slover::Vector2f{x:10.,y:10.},10.0,tiny_skia::Color::from_rgba8(0,255,255,127));
   s.addObject(slover::Vector2f{x:30.,y:10.},8.0,tiny_skia::Color::from_rgba8(255,0,255,127));
 
@@ -38,6 +45,9 @@ fn main() -> Result<(), slint::PlatformError> {
     let num = s.getObjects().len();
     ui.set_ballnum(num.try_into().unwrap());
 
+    // 计算帧
+    s.update();
+    // 绘制结果
     let image = renderer::renderer(s.getObjects());
     ui.set_frame(image)
 
