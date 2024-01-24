@@ -1,5 +1,8 @@
 slint::include_modules!();
 
+mod slover;
+mod renderer;
+
 fn main() -> Result<(), slint::PlatformError> {
   // 参数定义
   const WINDOW_W:i32 = 1920; // 窗口宽
@@ -14,9 +17,14 @@ fn main() -> Result<(), slint::PlatformError> {
   ui.set_w_width(WINDOW_W);
   ui.set_w_height(WINDOW_H);
 
+
+  let mut s = slover::Slover::new();
+  s.addObject(slover::Vector2f{x:10.,y:10.},10.0,tiny_skia::Color::from_rgba8(0,255,255,127));
+  s.addObject(slover::Vector2f{x:30.,y:10.},8.0,tiny_skia::Color::from_rgba8(255,0,255,127));
+
   let ui_handle = ui.as_weak();
   let mut clock = std::time::Instant::now();
-  let mut ball_cnt = 0;
+  //let mut ball_cnt = 0;
   let frametimer = slint::Timer::default();
   frametimer.start(TimerMode::Repeated, std::time::Duration::from_millis(FRAME_TIME.into()), move || {
     // 计算当前帧率
@@ -27,29 +35,10 @@ fn main() -> Result<(), slint::PlatformError> {
 
     // 刷新文字
     ui.set_fps(rate);
-    ui.set_ballnum(ball_cnt);
+    let num = s.getObjects().len();
+    ui.set_ballnum(num.try_into().unwrap());
 
-    let mut frame_buffer = SharedPixelBuffer::<Rgba8Pixel>::new(800, 800);
-    let mut pixmap = tiny_skia::PixmapMut::from_bytes(frame_buffer.make_mut_bytes(), frame_buffer.width(), frame_buffer.height()).unwrap();
-    pixmap.fill(tiny_skia::Color::TRANSPARENT);
-    
-    let circle = tiny_skia::PathBuilder::from_circle(320., 240., 150.).unwrap();
-    
-    let mut paint = tiny_skia::Paint::default();
-    paint.shader = tiny_skia::LinearGradient::new(
-        tiny_skia::Point::from_xy(100.0, 100.0),
-        tiny_skia::Point::from_xy(400.0, 400.0),
-        vec![
-            tiny_skia::GradientStop::new(0.0, tiny_skia::Color::from_rgba8(50, 127, 150, 200)),
-            tiny_skia::GradientStop::new(1.0, tiny_skia::Color::from_rgba8(220, 140, 75, 180)),
-        ],
-        tiny_skia::SpreadMode::Pad,
-        tiny_skia::Transform::identity(),
-    ).unwrap();
-    
-    pixmap.fill_path(&circle, &paint, tiny_skia::FillRule::Winding, Default::default(), None);
-    
-    let image = Image::from_rgba8_premultiplied(frame_buffer);
+    let image = renderer::renderer(s.getObjects());
     ui.set_frame(image)
 
   });
