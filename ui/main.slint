@@ -1,0 +1,44 @@
+
+export component AppWindow inherits Window {
+    in property <int> w_height;
+    in property <int> w_width;
+    in property <float> constraint_radius:400;
+    in property <image> frame;
+    in property <float> fps;
+    in property <int> ballnum;
+
+    width:  w_width * 1px;
+    height: w_height * 1px;
+
+    Text {
+        x: 0;
+        y: 0;
+        text: "fps:"+fps;
+    }
+
+    Text {
+        x: 0;
+        y: 20px;
+        text: "ball:"+ballnum;
+    }
+
+    Rectangle {
+        x: parent.width/2 - constraint_radius*1px;
+        y: parent.height/2 - constraint_radius*1px;
+        width: constraint_radius*2px;
+        height: constraint_radius*2px;
+        background: black;
+        border-radius: constraint_radius*1px;
+    }
+
+    Image {
+        x: parent.width/2 - constraint_radius*1px;
+        y: parent.height/2 - constraint_radius*1px;
+        width: constraint_radius*2px;
+        height: constraint_radius*2px;
+        source: frame;
+    }
+
+}
+
+
