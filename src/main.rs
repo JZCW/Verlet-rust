@@ -13,7 +13,10 @@ fn main() -> Result<(), slint::PlatformError> {
   const SUB_STEP:u32 = 8;    // 子步进
   const GRAVITY:slover::Vector2f = slover::Vector2f{x:0.,y:0.01}; // 重力
 
+
   const FRAME_TIME:u32 = 1000/FRAME_RATE;
+  //const CONSTRAINT_RADIUS:i32 = WINDOW_H/2;
+  const CONSTRAINT_RADIUS:i32 = 400;
 
   use slint::{Color, Model, Timer, TimerMode, SharedPixelBuffer, Rgba8Pixel, Image};
 
@@ -26,8 +29,10 @@ fn main() -> Result<(), slint::PlatformError> {
   s.sub_step = SUB_STEP;
   s.step_dt  = (FRAME_TIME/SUB_STEP) as f32;
   s.gravity  = GRAVITY;
-  s.addObject(slover::Vector2f{x:10.,y:10.},10.0,tiny_skia::Color::from_rgba8(0,255,255,127));
-  s.addObject(slover::Vector2f{x:30.,y:10.},8.0,tiny_skia::Color::from_rgba8(255,0,255,127));
+  s.constraint_radius = CONSTRAINT_RADIUS as f32;
+  s.constraint_center = slover::Vector2f{x:CONSTRAINT_RADIUS as f32 ,y:CONSTRAINT_RADIUS as f32};
+  s.addObject(slover::Vector2f{x:400.,y:10.},10.0,tiny_skia::Color::from_rgba8(0,255,255,127));
+  s.addObject(slover::Vector2f{x:450.,y:80.},8.0,tiny_skia::Color::from_rgba8(255,0,255,127));
 
   let ui_handle = ui.as_weak();
   let mut clock = std::time::Instant::now();
