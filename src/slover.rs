@@ -112,83 +112,6 @@ impl Cobject {
 }
 //------------------------------------------------------------------------------
 
-// fn main() {
-//   let mut data = Data::new(vec![2, 3, 4]);
-
-//   // this works
-//   let slice = data.get_mut_slice(1);
-//   slice[2] = 5.0;
-//   println!("{:?}", data);
-
-//   // and now this works too!
-//   let mut slices = data.get_mut_slices(vec![0, 1]);
-//   slices[0][0] = 2.0;
-//   slices[1][0] = 3.0;
-//   println!("{:?}", data);
-// }
-
-// #[derive(Debug)]
-// struct Data {
-//   data: Vec<Vec<f64>>,
-// }
-
-// impl Data {
-//   fn new(lengths: Vec<usize>) -> Data {
-//       Data {
-//           data: lengths.iter().map(|n| vec![0_f64; *n]).collect(),
-//       }
-//   }
-
-//   fn get_mut_slice(&mut self, index: usize) -> &mut [f64] {
-//       &mut self.data[index][..]
-//   }
-
-//   // now works!
-//   fn get_mut_slices(&mut self, mut indexes: Vec<usize>) -> Vec<&mut [f64]> {
-//       // sort indexes for easier processing
-//       indexes.sort();
-//       let index_len = indexes.len();
-
-//       // early return for edge case
-//       if index_len == 0 {
-//           return Vec::new();
-//       }
-
-//       // check that the largest index is in bounds
-//       let max_index = indexes[index_len - 1];
-//       if max_index > self.data.len() {
-//           panic!("{} index is out of bounds of data", max_index);
-//       }
-
-//       // check that we have no overlapping indexes
-//       indexes.dedup();
-//       let uniq_index_len = indexes.len();
-//       if index_len != uniq_index_len {
-//           panic!("cannot return aliased mut refs to overlapping indexes");
-//       }
-
-//       // leverage the unsafe code that's written in the standard library
-//       // to safely get multiple unique disjoint mutable references
-//       // out of the Vec
-//       let mut mut_slices_iter = self.data.iter_mut();
-//       let mut mut_slices = Vec::with_capacity(index_len);
-//       let mut last_index = 0;
-//       for curr_index in indexes {
-//           mut_slices.push(
-//               mut_slices_iter
-//                   .nth(curr_index - last_index)
-//                   .unwrap()
-//                   .as_mut_slice(),
-//           );
-//           last_index = curr_index;
-//       }
-
-//       // return results
-//       mut_slices
-//   }
-// }
-//------------------------------------------------------------------------------
-
 pub struct Slover {
   objects:Vec<Cobject>, // 对象列表
   pub sub_step:u32,     // 帧步进
@@ -211,8 +134,11 @@ impl Slover {
   }
 
   // 添加一个对象
-  pub fn addObject(&mut self, position:Vector2f, radius:f32, color:tiny_skia::Color) {
-    self.objects.push(Cobject::new(position, radius, color));
+  pub fn addObject(&mut self, position:Vector2f, radius:f32, velocity:Vector2f, color:tiny_skia::Color) -> &Cobject {
+    let mut obj = Cobject::new(position, radius, color);
+    obj.setVelocity(&velocity, self.step_dt);
+    self.objects.push(obj);
+    return self.objects.last_mut().unwrap();
   }
 
   // 获取全部对象
@@ -245,7 +171,7 @@ impl Slover {
           let dist2 = v.x.powi(2) + v.y.powi(2); // 两个对象距离的平方
           let min_dist = object1.radius + object2.radius;  // 两个对象的半径和
           if dist2 < min_dist.powi(2) { // 检查是否重叠
-            let dist = dist2.sqrt(); // 当前距离
+            let dist = dist2.sqrt(); // 当前距离  //FIXME 0？
             let n = v/dist;     // 单位向量
             let mass_ratio_1 = object1.radius / (object1.radius + object2.radius);
             let mass_ratio_2 = object2.radius / (object1.radius + object2.radius);
