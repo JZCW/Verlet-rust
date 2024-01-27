@@ -1,3 +1,5 @@
+RUSTFLAGS="-Ctarget-cpu=haswell"
+
 run:
 	cargo run
 
@@ -5,4 +7,4 @@ run:
 # 	cargo build
 
 release:
-	cargo run --release
+		cargo run --release

@@ -161,7 +161,7 @@ impl Slover {
 
   // 更新状态
   pub fn update(&mut self) {
-    for _i in 0..self.sub_step { // 循环 sub_step 轮
+    for _i in 0..self.sub_step {
       self.apply_gravity();
       self.check_collisions();
       self.apply_constraint();
@@ -171,7 +171,7 @@ impl Slover {
 
   // 检测碰撞
   fn check_collisions(&mut self) {
-    const RESPONSE_COEF:f32 = 1.2; // 阻尼系数？
+    const RESPONSE_COEF:f32 = 1.2; //？
 
     let len = self.objects.len();
     if len>0 {
