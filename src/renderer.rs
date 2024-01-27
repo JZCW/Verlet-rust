@@ -1,17 +1,16 @@
-//mod slover;
-
 use crate::slover;
-use slint::{Image, Rgba8Pixel, SharedPixelBuffer, StandardListViewItem};
+use slint::{Image, Rgba8Pixel, SharedPixelBuffer};
 
-pub fn renderer(objects:&Vec<slover::Cobject>) -> slint::Image {
-
+//------------------------------------------------------------------------------
+// renderer
+//------------------------------------------------------------------------------
+pub fn renderer(objects:&Vec<slover::Cobject>) -> Image {
   let mut frame_buffer = SharedPixelBuffer::<Rgba8Pixel>::new(800, 800);
   let w = frame_buffer.width();
   let h = frame_buffer.height();
   let mut pixmap = tiny_skia::PixmapMut::from_bytes(frame_buffer.make_mut_bytes(), w, h).unwrap();
   pixmap.fill(tiny_skia::Color::TRANSPARENT);
   //pixmap.fill(tiny_skia::Color::BLACK);
-
 
   for item in objects.iter() { 
     let mut paint1 = tiny_skia::Paint::default();
@@ -26,11 +25,12 @@ pub fn renderer(objects:&Vec<slover::Cobject>) -> slint::Image {
     pixmap.fill_path(&circle, &paint1, tiny_skia::FillRule::Winding, tiny_skia::Transform::identity(), None);
   }
 
-  let image = slint::Image::from_rgba8_premultiplied(frame_buffer);
-
-  return image;
+  Image::from_rgba8_premultiplied(frame_buffer)
 }
 
+//------------------------------------------------------------------------------
+// rainbow_iter
+//------------------------------------------------------------------------------
 pub struct Rainbow {
   counter:f32,
   alpha:f32
